@@ -1,5 +1,31 @@
 version: 2.1
 
+commands:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      # Add parameter here  
+      workflowID:
+        type: string 
+    steps:
+      - run:
+          name: Echo workflow ID that is going be be destroyed
+          when: on_fail
+          command: echo "WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}"
+      - run:
+          name: Destroy backend stack
+          when: on_fail
+          command: |
+            aws s3 rm s3://udapeople-<< parameters.workflowID >> --recursive
+            aws s3 rb s3://udapeople-<< parameters.workflowID >> --force
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflowID >>
+      - run:
+          name: Destroy frontend stack
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowID >>
+
+
 jobs:
   build-frontend:
     docker:
@@ -123,7 +149,81 @@ jobs:
             npm audit --audit-level=critical
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-scan          
+          key: backend-scan 
+
+  deploy-infrastructure:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install tar and zip utilities
+          command: yum -y install tar gzip
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            # Your code here
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --output text >> inventory
+            cat ./.circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure   
+      - destroy-environment:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
+
+
+  configure-infrastructure:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      # Add ssh keys with fingerprint
+      # attach workspace
+      - checkout
+      - attach_workspace:
+          at: .
+      - add_ssh_keys:
+          fingerprints: 
+            - "16:a6:b8:39:f9:12:14:d5:56:89:1f:3b:fa:7c:04:7c"
+      - run:
+          name: Install dependencies
+          command: |
+            # Your code here
+            apk add --update ansible
+            pip install awscli
+      - run:
+          name: Configure server
+          command: |
+            # Your code here
+            cat ./.circleci/ansible/inventory.txt
+            export ANSIBLE_HOST_KEY_CHECKING=false
+            ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/configure-server.yml
+      # Here's where you will add some code to rollback on failure    
+      - destroy-environment:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}                         
 
 workflows:
   default:
@@ -138,3 +238,4 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - deploy-infrastructure    
