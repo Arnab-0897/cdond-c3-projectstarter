@@ -272,8 +272,11 @@ jobs:
           command: |
             # Your code here
             cd backend
+            npm cache clean --force
+            rm -rf node_module
             npm install
             npm audit fix
+            npm start
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:
