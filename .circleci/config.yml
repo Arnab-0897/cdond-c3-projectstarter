@@ -54,7 +54,7 @@ commands:
           when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS=$(curl --insecure https://kvdb.io/PLEDtAPYXQRG8zcTStLoJS/migration_<< parameters.workflowID >>)
+            SUCCESS=$(curl --insecure https://kvdb.io/MHBrHzmDBQsGL11KyCKygj/migration_<< parameters.workflowID >>)
             echo $SUCCESS
             if(( "$SUCCESS"==1 )); 
             then
@@ -272,7 +272,6 @@ jobs:
           command: |
             # Your code here
             cd backend
-            npm install
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:
@@ -282,7 +281,7 @@ jobs:
             if grep "has been executed successfully" ./backend/migrations_dump.txt;
             then
               echo "Database migration has been executed successfully"
-              curl https://kvdb.io/PLEDtAPYXQRG8zcTStLoJS/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl https://kvdb.io/MHBrHzmDBQsGL11KyCKygj/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
      # Here's where you will add some code to rollback on failure   
       - destroy-environment:
