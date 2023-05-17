@@ -212,11 +212,11 @@ jobs:
           command: |
             # Your code here
             aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project, Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text >> .circleci/ansible/inventory.txt
-            cat ./.circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: ~/
+          root: .
           paths:
-            - ./.circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure   
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -248,9 +248,9 @@ jobs:
           name: Configure server
           command: |
             # Your code here
-            cat ./.circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
             export ANSIBLE_HOST_KEY_CHECKING=false
-            ansible-playbook -i ./.circleci/ansible/inventory.txt ./.circleci/ansible/configure-server.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       # Here's where you will add some code to rollback on failure    
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}    
