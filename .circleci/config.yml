@@ -275,7 +275,9 @@ jobs:
             echo "npm install"
             npm install
             echo "npm migrations"
-            npm run migrations > migrations_dump.txt
+            touch migrations_dump.txt
+            npm run migrations >> migrations_dump.txt
+            echo "copied to migrations_dump.txt"
             cat migrations_dump.txt 
       - run:
           name: Send migration results to kvdb
