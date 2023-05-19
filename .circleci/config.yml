@@ -274,6 +274,7 @@ jobs:
             cd backend
             echo "npm install"
             npm install
+            npm run build
             echo "npm migrations" 
             npm run migrations > migrations_dump.txt
             echo $?
