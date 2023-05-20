@@ -261,39 +261,27 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
-      - image: cimg/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: .     
       - run:
           name: Run migrations
           command: |
-            # Your code here
             cd backend
-            echo "npm install"
             npm install
-            npm run build
-            echo "npm migrations" 
             npm run migrations > migrations_dump.txt
-            echo $?
-            echo "copied to migrations_dump.txt" 
-            
       - run:
-          name: Send migration results to kvdb
+          name: Send migration status to kvdb.io
           command: |
-            # Your code here
-            if grep "has been executed successfully" ./backend/migrations_dump.txt;
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              echo "Database migration has been executed successfully"
-              curl https://kvdb.io/MHBrHzmDBQsGL11KyCKygj/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
-              tmp=$(curl --insecure https://kvdb.io/MHBrHzmDBQsGL11KyCKygj/migration_${CIRCLE_WORKFLOW_ID:0:7})
-              echo $tmp
+                curl https://kvdb.io/3uPKwkHBWbwMWo7giejVRd/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-     # Here's where you will add some code to rollback on failure   
       - destroy-environment:
-          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}   
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}  
 
   deploy-frontend:
     docker:
@@ -323,9 +311,10 @@ jobs:
           command: |
             # your code here
             cd frontend
+            sudo npm install
+            rm -rf node_modules
             npm install
             npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure   
       - destroy-environment:
@@ -346,7 +335,7 @@ jobs:
           fingerprints: 
             - "0b:17:d9:e1:9a:6e:bb:bf:aa:ca:31:1e:c6:6f:a2:d9"
       - attach_workspace:
-          at: .
+          at: .        
       - run:
           name: Install dependencies
           command: |
@@ -356,7 +345,8 @@ jobs:
             apk add --no-cache openssh-client
             apk add --no-cache --upgrade bash
             pip install awscli
-      - create-dotenv-file      
+            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt install -y nodejs     
       - run:
           name: Deploy backend
           command: |
