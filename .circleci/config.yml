@@ -1,6 +1,36 @@
 version: 2.1
 
 commands:
+  install_nodejs:
+    description: Install Node.js 13
+    steps:
+      - run:
+          name: Install Node.js 13
+          command: |
+            curl -fsSL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+            sudo apt install -y nodejs
+
+  install_awscli:
+    description: Install AWS CLI 
+    steps:
+      - run:
+          name: Install AWS CLI 
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+
+  install_ansible:
+    description: Install Ansible
+    steps:
+      - run:
+          name: Install Ansible
+          command: |
+            sudo apt update
+            sudo apt install software-properties-common -y
+            sudo add-apt-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible -y
+            
   create-dotenv-file:
     description: Create .env file
     steps:
@@ -290,13 +320,14 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
-            yum install -y tar gzip curl
-            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-            yum install -y nodejs
+      - add_ssh_keys:
+          fingerprints: 
+            - "0b:17:d9:e1:9a:6e:bb:bf:aa:ca:31:1e:c6:6f:a2:d9"
+      - attach_workspace:
+          at: .        
+      - install_nodejs
+      - install_awscli
+      - install_ansible
       - run:
           name: Get backend url
           command: |
@@ -311,7 +342,6 @@ jobs:
           command: |
             # your code here
             cd frontend
-            rm -rf node_modules
             npm install
             npm run build
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
@@ -335,18 +365,9 @@ jobs:
             - "0b:17:d9:e1:9a:6e:bb:bf:aa:ca:31:1e:c6:6f:a2:d9"
       - attach_workspace:
           at: .        
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
-            apk add --update ansible
-            apk add --no-cache curl
-            apk add --no-cache openssh-client
-            apk add --no-cache --upgrade bash
-            pip install awscli  
-            yum install -y tar gzip curl
-            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-            yum install -y nodejs
+      - install_nodejs
+      - install_awscli
+      - install_ansible    
       - run:
           name: Deploy backend
           command: |
