@@ -288,6 +288,8 @@ jobs:
             then
               echo "Database migration has been executed successfully"
               curl https://kvdb.io/MHBrHzmDBQsGL11KyCKygj/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              tmp=$(curl --insecure https://kvdb.io/MHBrHzmDBQsGL11KyCKygj/migration_${CIRCLE_WORKFLOW_ID:0:7})
+              echo $tmp
             fi
      # Here's where you will add some code to rollback on failure   
       - destroy-environment:
