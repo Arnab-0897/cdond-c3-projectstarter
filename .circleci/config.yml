@@ -324,7 +324,7 @@ jobs:
           fingerprints: 
             - "0b:17:d9:e1:9a:6e:bb:bf:aa:ca:31:1e:c6:6f:a2:d9"
       - attach_workspace:
-          at: .        
+          at: ~/      
       - install_nodejs
       - install_awscli
       - install_ansible
@@ -342,6 +342,7 @@ jobs:
           command: |
             # your code here
             cd frontend
+            rm -rf node_modules
             npm install
             npm run build
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
@@ -364,7 +365,7 @@ jobs:
           fingerprints: 
             - "0b:17:d9:e1:9a:6e:bb:bf:aa:ca:31:1e:c6:6f:a2:d9"
       - attach_workspace:
-          at: .        
+          at: ~/       
       - install_nodejs
       - install_awscli
       - install_ansible    
