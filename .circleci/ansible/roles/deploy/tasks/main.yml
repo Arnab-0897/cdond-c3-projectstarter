@@ -1,28 +1,25 @@
 ---
-- name: Upgrade npm
-  become: true
-  shell: |
-    npm install -g npm@latest
-- name: Copy compiled files
+- name: extract artifact
+  become: yes
   unarchive:
-    src: /root/project/backend.tar.gz
-    dest: /home/ubuntu/
+    src: files/artifact.tar.gz
+    dest: .
+    
+- name: start app
+  become: yes
+  shell: |
+    npm install
+    pm2 stop all
+    pm2 start npm --name "udapeople-backend" -- run start
 
-- name: Build backend
-  ignore_errors: yes
+- name: "Set pm2 start as service"
+  become: yes
   shell: |
-    cd /home/ubuntu/backend
-    npm i
-    npm run build
-- name: Stop and delete already running server
-  ignore_errors: yes
+    env PATH=$PATH:/usr/local/bin pm2 startup -u ubuntu
+    
+- name: check pm2 status
+  become: yes
   shell: |
-    pm2 stop backend
-    pm2 delete backend
-- name: Start server
-  become: true
-  shell: |
-    cd /home/ubuntu/backend
-    pm2 start npm --name backend -- start
-    pm2 ls
-    sleep 600
+    pm2 describe "udapeople-backend"
+  register: command_output_npm
+- debug: var=command_output_npm.stdout_lines
