@@ -267,7 +267,7 @@ jobs:
           at: .
       - add_ssh_keys:
           fingerprints: 
-            - "0b:17:d9:e1:9a:6e:bb:bf:aa:ca:31:1e:c6:6f:a2:d9"
+            - "ed:b0:c3:f3:ff:4b:c2:16:0f:39:47:ed:4a:66:2d:e0"
       - run:
           name: Install dependencies
           command: |
@@ -322,7 +322,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: 
-            - "0b:17:d9:e1:9a:6e:bb:bf:aa:ca:31:1e:c6:6f:a2:d9"
+            - "ed:b0:c3:f3:ff:4b:c2:16:0f:39:47:ed:4a:66:2d:e0"
       - attach_workspace:
           at: ~/      
       - install_nodejs
@@ -363,7 +363,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: 
-            - "0b:17:d9:e1:9a:6e:bb:bf:aa:ca:31:1e:c6:6f:a2:d9"
+            - "ed:b0:c3:f3:ff:4b:c2:16:0f:39:47:ed:4a:66:2d:e0"
       - attach_workspace:
           at: ~/       
       - install_nodejs
