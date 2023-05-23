@@ -400,9 +400,9 @@ jobs:
             export API_URL=http://${BACKEND_PUBLIC_IP}:3030
             if curl -s "${API_URL}/api/status" | grep "ok"
             then
-              exit 0
-            else
               exit 1
+            else
+              exit 0
             fi
       - run:
           name: Frontend smoke test.
@@ -468,12 +468,12 @@ jobs:
             name: Get old stack workflow id
             command: |
               # your code here
-              export OldWorkflowID=$(curl --insecure  https://kvdb.io/PLEDtAPYXQRG8zcTStLoJS/OLD_WORKFLOW_ID)
+              export OldWorkflowID=$(curl --insecure  https://kvdb.io/3uPKwkHBWbwMWo7giejVRd/OLD_WORKFLOW_ID)
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) #put the list of stacks here
         - run:
             name: Remove old stacks and files
             command: | 
-              OLD_WORKFLOW_ID=$(curl --insecure  https://kvdb.io/PLEDtAPYXQRG8zcTStLoJS/OLD_WORKFLOW_ID)
+              OLD_WORKFLOW_ID=$(curl --insecure  https://kvdb.io/3uPKwkHBWbwMWo7giejVRd/OLD_WORKFLOW_ID)
               echo "OLD_WORKFLOW_ID=$OLD_WORKFLOW_ID"
               NEW_WORKFLOW_ID=${CIRCLE_WORKFLOW_ID:0:7}
               echo "NEW_WORKFLOW_ID=$NEW_WORKFLOW_ID"
