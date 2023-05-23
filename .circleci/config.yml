@@ -380,12 +380,15 @@ jobs:
             # your code here
             pwd
             cd backend
+            ls
+            pwd
             npm i
             cd ..
             cd .circleci/ansible/
             cat inventory.txt
             mkdir files
             cd files
+            pwd
             tar -C ../../../backend -czvf backend.tar.gz
             cd ../
             export ANSIBLE_HOST_KEY_CHECKING=false
