@@ -264,7 +264,7 @@ jobs:
       # attach workspace
       - checkout
       - attach_workspace:
-          at: .
+          at: ~/
       - add_ssh_keys:
           fingerprints: 
             - "ed:b0:c3:f3:ff:4b:c2:16:0f:39:47:ed:4a:66:2d:e0"
