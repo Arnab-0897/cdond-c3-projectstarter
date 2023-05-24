@@ -389,7 +389,7 @@ jobs:
             mkdir files
             cd files
             pwd
-            tar -czvf backend.tar.gz ../../../backend
+            tar -czvf artifact.tar.gz ../../../backend
             cd ../
             export ANSIBLE_HOST_KEY_CHECKING=false
             ansible-playbook -i inventory.txt deploy-backend.yml
