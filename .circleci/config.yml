@@ -403,9 +403,7 @@ jobs:
     docker:
       - image: cimg/base:stable
     steps:
-      - checkout
-      - attach_workspace:
-          at: ~/  
+      - checkout 
       - install_awscli
       - install_nodejs
       - run:
@@ -416,7 +414,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)  
             export API_URL=http://${BACKEND_PUBLIC_IP}:3030
-            if curl -s "${API_URL}/api/status" | grep "ok"
+            if curl -s "$API_URL/api/status" | grep "ok"
             then
               exit 0
             else
